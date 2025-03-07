@@ -101,9 +101,11 @@
                 android:layout_height="wrap_content"
                 android:layout_row="3"
                 android:layout_column="2"
+                android:textIsSelectable="true"
                 android:gravity="right"
                 android:textColor="@color/dialogTextColor"
                 android:textSize="24sp" />
+
         </GridLayout>
 
     </ScrollView>
@@ -122,11 +124,10 @@
             android:layout_height="wrap_content"
             android:orientation="vertical" >
             <TextView
+                android:textIsSelectable="true"
                 android:id="@+id/textViewer"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
         </LinearLayout>
     </ScrollView>
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>

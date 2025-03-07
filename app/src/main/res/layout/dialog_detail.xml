@@ -6,18 +6,18 @@
     android:layout_height="match_parent">
 
     <ScrollView
-        android:layout_width="290dp"
+        android:layout_width="310dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="25dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
-
         <GridLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:columnCount="3">
+
             <TextView
                 android:id="@+id/text_letters"
                 android:layout_width="110dp"
@@ -28,7 +28,6 @@
                 android:text="@string/letters"
                 android:textColor="@color/dialogTextColor"
                 android:textSize="24sp" />
-
             <TextView
                 android:id="@+id/text_letters2"
                 android:layout_width="100dp"
@@ -49,7 +48,6 @@
                 android:text="@string/lines"
                 android:textColor="@color/dialogTextColor"
                 android:textSize="24sp" />
-
             <TextView
                 android:id="@+id/text_lines2"
                 android:layout_width="100dp"
@@ -70,7 +68,6 @@
                 android:text="@string/NoBreak"
                 android:textColor="@color/dialogTextColor"
                 android:textSize="24sp" />
-
             <TextView
                 android:id="@+id/text_break2"
                 android:layout_width="100dp"
@@ -80,7 +77,6 @@
                 android:gravity="right"
                 android:textColor="@color/dialogTextColor"
                 android:textSize="24sp" />
-
 
             <TextView
                 android:id="@+id/text_empty"
@@ -92,7 +88,6 @@
                 android:text="改行・空白抜き:"
                 android:textColor="@color/dialogTextColor"
                 android:textSize="15sp" />
-
             <TextView
                 android:id="@+id/text_empty2"
                 android:layout_width="100dp"
@@ -113,7 +108,6 @@
                 android:text="@string/maxLengthText"
                 android:textColor="@color/dialogTextColor"
                 android:textSize="24sp" />
-
             <EditText
                 android:id="@+id/editSetLength"
                 android:layout_width="100dp"
@@ -125,7 +119,68 @@
                 android:gravity="right|center_vertical"
                 android:inputType="number" />
 
+            <TextView
+                android:id="@+id/text_matchesEnglish"
+                android:layout_width="110dp"
+                android:layout_height="wrap_content"
+                android:layout_row="5"
+                android:layout_column="0"
+                android:gravity="left"
+                android:text="@string/dialog_JudgeAlphaBet_text"
+                android:textColor="@color/dialogTextColor"
+                android:textSize="24sp" />
+            <CheckBox
+                android:id="@+id/half_alphabet_Checkbox"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_row="5"
+                android:layout_column="1"
+                android:text="@string/button_half"
+                tools:layout_editor_absoluteX="49dp"
+                tools:layout_editor_absoluteY="187dp" />
+            <CheckBox
+                android:id="@+id/full_alphabet_Checkbox"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_row="5"
+                android:layout_column="2"
+                android:text="@string/button_full"
+                tools:layout_editor_absoluteX="49dp"
+                tools:layout_editor_absoluteY="187dp" />
+            <TextView
+                android:id="@+id/text_matchesNumber"
+                android:layout_width="110dp"
+                android:layout_height="wrap_content"
+                android:layout_row="6"
+                android:layout_column="0"
+                android:gravity="left"
+                android:text="@string/dialog_judgeNumber_text"
+                android:textColor="@color/dialogTextColor"
+                android:textSize="24sp" />
+
+            <CheckBox
+                android:id="@+id/half_number_CheckBox"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_row="6"
+                android:layout_column="1"
+                android:text="@string/button_half"
+                tools:layout_editor_absoluteX="49dp"
+                tools:layout_editor_absoluteY="187dp" />
+            <CheckBox
+                android:id="@+id/full_number_Checkbox"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_row="6"
+                android:layout_column="2"
+                android:text="@string/button_full"
+                tools:layout_editor_absoluteX="49dp"
+                tools:layout_editor_absoluteY="187dp" />
+
+
         </GridLayout>
 
     </ScrollView>
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

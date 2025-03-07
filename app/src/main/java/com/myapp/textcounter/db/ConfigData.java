@@ -9,34 +9,34 @@ public class ConfigData extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
     // データーベース名
     private static final String DATABASE_NAME = "ConfigData.db";
-    private static final String _ID = "_id";
-    private static final String TABLE_NAME = "themeModeData";
-    private static final String APP_THEMES_FLAGS = "flag";
-       /*
-    private static final String APP_THEMES_ID = "checkd";
-    private static final String SQL_CREATE_ENTRIES = "CREATE TABLE " + TABLE_NAME + " (" +
-            _ID + " TEXT PRIMARY KEY," + APP_THEMES_FLAGS + " TEXT," + APP_THEMES_ID + " INTEGER DEFAULT 3)";
-    */
 
-    private static final String SQL_CREATE_ENTRIES = "CREATE TABLE " + TABLE_NAME + " (" +
-            _ID + " TEXT PRIMARY KEY," + APP_THEMES_FLAGS + " TEXT)";
-    private static final String TABLE_NAME2 = "watcherModeData";
-    private static final String WATCHER_MODE = "value";
-    private static final String TEXTBOX_WATCHER_MODE = "CREATE TABLE " + TABLE_NAME2 + " (" +
-            _ID + " TEXT PRIMARY KEY," + WATCHER_MODE + " TEXT)";
+    public String addEntries(String tableName,String colum,String ids){
+        return "CREATE TABLE " + tableName + " (" + ids + " CHAR PRIMARY KEY," + colum + " CHAR)";
+    }
+    public String remEntries(String tableName){ return "DROP TABLE IF EXISTS " + tableName;}
 
-    private static final String SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS " + TABLE_NAME;
     public ConfigData(Context context) {super(context, DATABASE_NAME, null, DATABASE_VERSION);}
-
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(SQL_CREATE_ENTRIES);//テーマ用
-        db.execSQL(TEXTBOX_WATCHER_MODE);//Watcher用
+        db.execSQL(addEntries("themeModeData","flag","_id"));//テーマ用  1
+        db.execSQL(addEntries("watcherModeData","situation","_id"));//Watcher用 1
+        db.execSQL(addEntries("maxLengthData","size","_id"));//1
+
+        db.execSQL(addEntries("half_alphabetModeData","value","_id"));//2
+        db.execSQL(addEntries("half_numberModeData","value","_id"));//2
+
+        db.execSQL(addEntries("full_alphabetModeData","value","_id"));//2
+        db.execSQL(addEntries("full_numberModeData","value","_id"));//2
     }
+
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL(SQL_DELETE_ENTRIES);
-        db.execSQL(TEXTBOX_WATCHER_MODE);
+    /*  db.execSQL(remEntries("themeModeData"));
+        db.execSQL(remEntries("watcherModeData"));
+        db.execSQL(remEntries("half_alphabetModeData"));
+        db.execSQL(remEntries("half_numberModeData"));
+        db.execSQL(remEntries("full_alphabetModeData"));
+        db.execSQL(remEntries("full_numberModeData"));*/
         onCreate(db);
     }
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {

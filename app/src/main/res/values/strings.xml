@@ -7,45 +7,60 @@
     <string name="button_cpy">コピー</string>
     <string name="button_pst">貼り付け</string>
     <string name="button_bck">戻る</string>
-    <string name="button_chk">リアルタイム</string>
-    <string name="button_all_del">全件削除</string>
 
-    <!--TextView -->
+    <!-- TextView -->
     <string name="letters">文字数:</string>
     <string name="lines">行数:</string>
     <string name="NoBreak">改行抜き:</string>
     <string name="NoEmpty">空白抜き:</string>
     <string name="maxLengthText">上限指定:</string>
 
-    <!-- Burble Message-->
-    <string name="burble_message_noText">テキストが入力されていません</string>
-    <string name="burble_message_copy">コピーしました</string>
-
-    <!-- Hint Message-->
-    <string name="hint_input">テキストを入力</string>
-
-    <!-- OptionMenu Text-->
-    <string name="option_edittext_history">入力履歴</string>
-    <string name="option_change_theme">テーマ変更</string>
-    <string name="option_app_close">アプリ終了</string>
+    <!-- Compound Button-->
+    <string name="button_half">半角</string>
+    <string name="button_full">全角</string>
+    <string name="button_chk">リアルタイム</string>
 
     <!-- DialogText -->
     <string name="dialog_theme_title">テーマ選択</string>
     <string name="dialog_theme_choice_1">ホワイト</string>
     <string name="dialog_theme_choice_2">ダーク</string>
     <string name="dialog_theme_choice_3">システムと連動</string>
+    <string name="dialog_JudgeAlphaBet_text">英字判定</string>
+    <string name="dialog_judgeNumber_text">数字判定</string>
+    <string name="dialog_please_yes">はい</string>
+    <string name="dialog_please_no">いいえ</string>
+    <string name="dialog_message_allDelete">本当に全件削除しますか</string>
 
-    <!--
-    <string name="BytesTitle">バイト数</string>
-    <string name="Bytes">Bytes</string>
-    -->
-    <!--
-    <string name="Byte_UTF_8">UTF-8:</string>
-    <string name="Byte_UTF_16">UTF-16:</string>
-    <string name="Byte_Shift_JIS">Shift-JIS:</string>
-    <string name="Byte_EUC_JP">EUC-JP:</string>
-    -->
-    <!-- <string name="Byte_JIS">JIS:</string>  -->
-    <!-- <string name="Paper">原稿用紙:</string> -->
+    <!-- Burble Message-->
+    <string name="burble_message_noData">テキストデータがありません</string>
+    <string name="burble_message_noText">テキストが入力されていません</string>
+    <string name="burble_message_copied">コピーしました</string>
+    <string name="burble_matches_messages_1">半角英字が含まれています</string>
+    <string name="burble_matches_messages_2">半角数字が含まれています</string>
+    <string name="burble_matches_messages_3">全角英字が含まれています</string>
+    <string name="burble_matches_messages_4">全角数字が含まれています</string>
+        <!-- Pattern text -->
+    <string name="burble_matches_messages_5">半角英字と全角英字 が含まれています</string>
+    <string name="burble_matches_messages_6">半角数字と全角数字が含まれています</string>
+    <string name="burble_matches_messages_7">半角英数字が含まれています</string>
+    <string name="burble_matches_messages_8">半角数字と全角英字が含まれています</string>
+    <string name="burble_matches_messages_9">全角英数字が含まれています</string>
+
+    <string name="burble_matches_messages_10">半角の英数字と全角の英字が含まれています</string>
+    <string name="burble_matches_messages_11">半角英字と全角の英数字が含まれています</string>
+    <string name="burble_matches_messages_12">全角の英数字と半角数字が含まれています</string>
+    <string name="burble_matches_messages_13">半角英数字と全角数字が含まれています</string>
+
+    <string name="burble_matches_messages_14">全角英数字と半角英数字が含まれています</string>
+
+    <!-- OptionMenu Text-->
+    <string name="option_edittext_history">入力履歴</string>
+    <string name="option_change_theme">テーマ変更</string>
+    <string name="option_app_close">アプリ終了</string>
+    <string name="option_all_delete">全件削除</string>
+    <!-- ContextMenu Text-->
+    <string name="listview_context_delete">削除</string>
+    <!-- Hint Message-->
+    <string name="hint_inputText">テキストを入力</string>
 
 </resources>

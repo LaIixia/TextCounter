@@ -10,15 +10,14 @@ import android.app.Dialog;
 import android.content.ClipboardManager;
 import android.content.ClipData;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Build;
 import android.text.InputFilter;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.Button;
 import android.widget.TextView;
@@ -30,196 +29,219 @@ import android.view.View;
 import android.os.Bundle;
 import android.database.sqlite.SQLiteDatabase;
 import static androidx.appcompat.app.AppCompatDelegate.*;
-import java.util.Objects;
 
-import com.myapp.textcounter.Buttons;
-import com.myapp.textcounter.R;
+import java.util.Objects;
+import java.util.UUID;
+
 import com.myapp.textcounter.db.*;
+import com.myapp.textcounter.model.*;
+import com.myapp.textcounter.R;
 
 public class MainActivity extends AppCompatActivity {//継承
 
     //フィールド onCreate内で呼び出すために、ここで各クラスを宣言
-    static Buttons bt ;
-    public static EditText e;
+    static MyLibrary myLibrary;
+    public static EditText textBOX;
     TextView textLetter ,textLines;
     ClipboardManager clipboard;
 
+
     InputHistory history;
-    SQLiteDatabase historyDB;
+    static SQLiteDatabase historyDB;
 
     ConfigData mode;
     static SQLiteDatabase modeDB;
-    static Cursor cursorTheme , cursor1;
-
+    static Cursor cursorTheme , cursorTheme1,maxCursor;
+    static  InputFilter[] maxText = new InputFilter[1];//要素１のインスタンスを生成
+    TextEvent TW = new TextEvent ();
+    SwitchCompat Watcher;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        super.onCreate (savedInstanceState);
+        setContentView (R.layout.activity_main);
 
         //dbを作成
-        bindDB();
-        //保存したテーマの状態に応じて反映
-        ViewTheme();
+        bindDB ( );
 
         //Activity起動時リソースのidに呼び出して、フィールドに代入
-        bt = new Buttons();
-        e = findViewById(R.id.edit_text);
+        myLibrary = new MyLibrary( );
+        textBOX = findViewById (R.id.edit_text);
         textLetter = findViewById (R.id.text_letters2);
         textLines = findViewById (R.id.text_lines2);
-        clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-        View (bt.Count (e.getText ( )), bt.intFormat(e.getLineCount ()));
+        clipboard = (ClipboardManager) getSystemService (Context.CLIPBOARD_SERVICE);
+        View (myLibrary.Count (textBOX.getText ( )), myLibrary.intFormat (textBOX.getLineCount ( )));
 
         //テキストカウント
-        Button button_cnt = findViewById(R.id.button_cnt);
-        button_cnt.setOnClickListener(new ButtonCount());
+        Button button_cnt = findViewById (R.id.button_cnt);
+        button_cnt.setOnClickListener (new ButtonCount ( ));
         //詳細ボタン
-        Button button_detail = findViewById(R.id.button_detail);
-        button_detail.setOnClickListener(new ButtonDetail());
+        Button button_detail = findViewById (R.id.button_detail);
+        button_detail.setOnClickListener (new ButtonDetail ( ));
         //テキスト削除
-        Button button_del = findViewById(R.id.button_del);
-        button_del.setOnClickListener(new ButtonDelete());
+        Button button_del = findViewById (R.id.button_clr);
+        button_del.setOnClickListener (new ButtonDelete ( ));
         //テキストコピー
-        Button button_cpy = findViewById(R.id.button_cpy);
-        button_cpy.setOnClickListener(new ButtonCopy());
+        Button button_cpy = findViewById (R.id.button_cpy);
+        button_cpy.setOnClickListener (new ButtonCopy ( ));
         //テキストペースト
-        Button button_pst = findViewById(R.id.button_pst);
-        button_pst.setOnClickListener(new ButtonPaste());
+        Button button_pst = findViewById (R.id.button_pst);
+        button_pst.setOnClickListener (new ButtonPaste ( ));
+
         //TextWatcherスイッチ
-        SwitchCompat Watcher = findViewById(R.id.watcherSwitch);
-        Watcher.setOnCheckedChangeListener(new swWatcher());
+        Watcher = findViewById (R.id.watcherSwitch);
+        Watcher.setOnCheckedChangeListener (new swWatcher ( ));
 
-        /*ディスプレイの密度を取得し、密度が2.75以下の場合は
+        //dbの状態に応じて設定をアプリ起動時に反映
+        bindSettingData( );
 
-        */
-        System.out.println(getResources().getDisplayMetrics());
+        /*ディスプレイの密度を取得し、密度が2.75以下の場合はサイズを変える*/
         if(getResources().getDisplayMetrics().density> 2.75){
-            bt.setLayoutDp(this, e, 335f, 300f);
-            bt.setLayoutDp(this, Watcher, 95f, 50f);
+            myLibrary.setLayoutDp(this, textBOX, 335f, 300f);//テキストボックス
+            myLibrary.setLayoutDp(this, Watcher, 95f, 50f);//スイッチ
         }
     }
 
     class ButtonDetail implements View.OnClickListener {
         @Override public void onClick(View v) {new LengthDialogFragment().show(getSupportFragmentManager(), "my_dialog1");}
     }
+    class ButtonCount implements View.OnClickListener {
+        public void onClick(View view) {//テキストが空の場合
+            if (myLibrary.textJudge(textBOX.getText())) {myLibrary.msgToast(getApplicationContext(),R.string.burble_message_noText, Toast.LENGTH_SHORT);}
+            else {
+                addText();
+                View(myLibrary.Count(textBOX.getText()), myLibrary.line(textBOX));
+                new PatternModel(getApplicationContext(),modeDB,textBOX.getText());
+            }
+        }
+    }
+
+    /*TextEvent型のTWにTextEventクラスのインスタンスを生成させることで、
+    TWでaddイベントを呼ぶと、removeする際に同じ場所(TW)を参照することでwatcherが切れる*/
+    class swWatcher implements CompoundButton.OnCheckedChangeListener{
+        public void onCheckedChanged(CompoundButton buttonView1, boolean isChecked) {
+            if (isChecked) {
+                textBOX.addTextChangedListener (TW);
+                myLibrary.dataInsert(modeDB,"watcherModeData",
+                        new String[]{"situation"},new String[]{"TRUE"});
+            }else{
+                textBOX.removeTextChangedListener (TW);
+                myLibrary.dataAllDelete(modeDB,"watcherModeData");
+            }
+        }
+    }
+
+    class TextEvent implements TextWatcher {
+        public void beforeTextChanged(CharSequence c, int A, int B, int C) {}
+        public void onTextChanged(CharSequence c, int A, int B, int C) {}
+        public void afterTextChanged(Editable editable) {
+            if(!myLibrary.textJudge(textBOX.getText())){
+                addText();
+                View (myLibrary.Count (textBOX.getText ( )), myLibrary.intFormat(textBOX.getLineCount ( )));
+                new PatternModel(getApplicationContext(),modeDB,textBOX.getText());
+            }
+        }
+    }
+
+    class ButtonDelete implements View.OnClickListener { public void onClick(View view){
+        textBOX.getText().clear();View(myLibrary.Count(textBOX.getText()), myLibrary.line(textBOX));}}
+
+    class ButtonCopy implements View.OnClickListener {
+        public void onClick(View view) {
+            if(myLibrary.textJudge(textBOX.getText ())){//空であるか判断;
+                myLibrary.msgToast(getApplicationContext(),R.string.burble_message_noText,Toast.LENGTH_SHORT);}
+            else{
+                //クリップボードにセット
+                clipboard.setPrimaryClip(ClipData.newPlainText(null, textBOX.getText ()));
+               if(Build.VERSION.SDK_INT > 33) {//os 13以下の時だけメッセージを出す
+                   myLibrary.msgToast(getApplicationContext(),R.string.burble_message_copied,Toast.LENGTH_SHORT);
+               }
+            }
+        }
+    }
+    class ButtonPaste implements View.OnClickListener {
+        public void onClick(View view) {
+            //グリップボートのデータの位置  0番目
+            try {
+                ClipData.Item item = Objects.requireNonNull(clipboard.getPrimaryClip()).getItemAt(0);
+                String pasteData = myLibrary.format2(item.getText());
+                //item内が空でないの時だけテキストの処理を行う
+                if (!myLibrary.textJudge(item)) {
+                    textBOX.setText(pasteData);
+                    View(myLibrary.Count(pasteData), myLibrary.line(textBOX));
+                }
+            } catch (NullPointerException ignored) {}
+        }
+    }
+
     public static class LengthDialogFragment extends DialogFragment {
         @NonNull @Override
         public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
             LayoutInflater inflater = requireActivity().getLayoutInflater();
-            View myDia = inflater.inflate(R.layout.dialog_signin, null);
+            View myDia = inflater.inflate(R.layout.dialog_detail, null);
+            CheckBox half_engCheckbox = myDia.findViewById(R.id.half_alphabet_Checkbox),
+                     half_numCheckbox = myDia.findViewById(R.id.half_number_CheckBox),
+                     full_engCheckbox = myDia.findViewById(R.id.full_alphabet_Checkbox),
+                     full_numCheckbox = myDia.findViewById(R.id.full_number_Checkbox);
             EditText setMaxNum = myDia.findViewById(R.id.editSetLength);
             TextView letter = myDia.findViewById(R.id.text_letters2),
                     line   = myDia.findViewById(R.id.text_lines2),
                     breaks = myDia.findViewById(R.id.text_break2),
                     empty  = myDia.findViewById(R.id.text_empty2);
-            letter.setText(bt.Count(e.getText()));
-            line.setText(bt.line (e));
-            breaks.setText(bt.BreakCnt(bt.Count(e.getText ()), bt.line (e)));
-            empty.setText(bt.EmptyCnt(bt.format2(e.getText())));
-            InputFilter[] maxText = new InputFilter[1];//要素１のインスタンスを生成
+
+            maxCursor = modeDB.query("maxLengthData",new String[]{"size"},null,null,null,null,null);
+            if(maxCursor.moveToFirst()){//dbを参照して、テーブルに設定値があるかどうか
+                if(myLibrary.textJudge(maxCursor.getString(0))){
+                    setMaxNum.setText(null);
+                }else {
+                    setMaxNum.setText(maxCursor.getString(0));
+                }
+            }
+            maxCursor.close();
+
+            //Dialogを表示した際にdbのテーブルを参照して判断する
+            half_engCheckbox.setChecked(myLibrary.isMode (modeDB, "half_alphabetModeData", new String[]{"value"},"TRUE"));
+            half_numCheckbox.setChecked(myLibrary.isMode (modeDB, "half_numberModeData", new String[]{"value"}, "TRUE"));
+            full_engCheckbox.setChecked(myLibrary.isMode (modeDB, "full_alphabetModeData", new String[]{"value"},"TRUE"));
+            full_numCheckbox.setChecked(myLibrary.isMode (modeDB, "full_numberModeData", new String[]{"value"}, "TRUE"));
+            //操作された時にdbを読み書きする
+            half_engCheckbox.setOnCheckedChangeListener((buttonView, isChecked) ->
+                    myLibrary.dataMatchListener(isChecked,modeDB,"half_alphabetModeData", new String[]{"value"}, new String[]{"TRUE"}));
+            half_numCheckbox.setOnCheckedChangeListener((buttonView, isChecked) ->
+                    myLibrary.dataMatchListener(isChecked,modeDB,"half_numberModeData", new String[]{"value"}, new String[]{"TRUE"}));
+            full_engCheckbox.setOnCheckedChangeListener((buttonView, isChecked) ->
+                    myLibrary.dataMatchListener(isChecked,modeDB,"full_alphabetModeData", new String[]{"value"}, new String[]{"TRUE"}));
+            full_numCheckbox.setOnCheckedChangeListener((buttonView, isChecked) ->
+                    myLibrary.dataMatchListener(isChecked,modeDB,"full_numberModeData", new String[]{"value"}, new String[]{"TRUE"}));
+
+            letter.setText(myLibrary.Count(textBOX.getText()));
+            line.setText(myLibrary.line (textBOX));
+            breaks.setText(myLibrary.BreakCnt(myLibrary.Count(textBOX.getText ()), myLibrary.line (textBOX)));
+            empty.setText(myLibrary.EmptyCnt(myLibrary.format2(textBOX.getText())));
             return new AlertDialog.Builder(requireActivity())
                     .setView(myDia)
                     .setPositiveButton(R.string.button_bck, (dialog, which) -> {
-                        if (setMaxNum.length() == 0) {
-                            e.setFilters(new InputFilter[0]);//要素0番目のデータを空のインスタンスを生成
+                        if (myLibrary.format2(setMaxNum.getText()).isEmpty()) {
+                            textBOX.setFilters(new InputFilter[0]);//要素0番目のデータを空のインスタンスを生成
+                            myLibrary.dataAllDelete(modeDB,"maxLengthData");
                         } else {
                             try {
-                                maxText[0] = new InputFilter.LengthFilter(Integer.parseInt(bt.format2(setMaxNum.getText())));
-                                e.setFilters(maxText);
+                                myLibrary.changeData(modeDB, maxCursor,"maxLengthData","size", myLibrary.format2(setMaxNum.getText()));
+                                maxText[0] = new InputFilter.LengthFilter(Integer.parseInt(myLibrary.format2(setMaxNum.getText())));
+                                textBOX.setFilters(maxText);
                             } catch (Exception ex) {
                                 //int型以外のデータがセットされようとした場合も空のインスタンスを生成(上限を設定しない)
-                                e.setFilters(new InputFilter[0]);
+                                textBOX.setFilters(new InputFilter[0]);
                             }
                         }
                     }).create();
         }
     }
-    class ButtonCount implements View.OnClickListener {
-        public void onClick(View view) {
-            if(bt.Judge(e.getText())) {toast(R.string.burble_message_noText);}//テキストが空の場合
-            else{Add();View(bt.Count(e.getText()),bt.line(e));}
-        }
-    }
-    /*TextEvent型のTWにTextEventクラスのインスタンスを生成させることで、
-    TWでaddイベントを呼ぶと、removeする際に同じ場所(TW)を参照することでwatcherが切れる*/
-    class swWatcher implements CompoundButton.OnCheckedChangeListener{
-        TextEvent TW = new TextEvent ();
-        public void onCheckedChanged(CompoundButton buttonView1, boolean isChecked) {
-            if (isChecked) {e.addTextChangedListener (TW);}
-            else{e.removeTextChangedListener (TW);}
-        }
-    }
-    class TextEvent implements TextWatcher {
-        public void beforeTextChanged(CharSequence charSequence, int A, int B, int C) {}
-        public void onTextChanged(CharSequence charSequence, int A, int B, int C) {}
-        public void afterTextChanged(Editable editable) {
-            if(!bt.Judge(e.getText())){
-                Add();
-                View (bt.Count (e.getText ( )), bt.intFormat(e.getLineCount ( )));
-            }
-        }
-    }
 
-    class ButtonDelete implements View.OnClickListener {
-        public void onClick(View view){e.getText().clear();View(bt.Count(e.getText()),bt.line(e));}}
-
-    class ButtonCopy implements View.OnClickListener {
-        public void onClick(View view) {
-            if(bt.Judge(e.getText ())){toast(R.string.burble_message_noText);}
-            else{clipboard.setPrimaryClip(ClipData.newPlainText(null, e.getText ()));}//クリップボードにセット
-            //Android 12L以下かつ、edittext内の文字の長さが0でない時だけバブルを出す
-            if(Build.VERSION.SDK_INT <= 32 && !bt.Judge (e.getText ())) {toast(R.string.burble_message_copy);}
-        }
-    }
-
-    class ButtonPaste implements View.OnClickListener {
-        public void onClick(View view) {
-            //グリップボートのデータの位置  0番目
-            ClipData.Item item =Objects.requireNonNull (clipboard.getPrimaryClip ( )).getItemAt (0);
-            System.out.println(item);
-            String pasteData = bt.format2(item.getText());
-            //item内が空でない(つまりtrue)の時だけテキストボックスに入れる
-            if(!bt.Judge(item)){e.setText (pasteData); View(bt.Count(pasteData),bt.line(e));}
-        }
-    }
-
-    public void Add(){
-        bt.textInsert(historyDB,"textData",new String[] {"date","description","line","break","empty"},new String[]{bt.getNowDate (),
-                bt.format2 (e.getText ( )),bt.line(e),bt.BreakCnt(bt.Count(e.getText ()), bt.line (e)),bt.EmptyCnt(bt.format2(e.getText()))});}
-    public void toast(int resId){Toast.makeText(getApplicationContext(), resId, Toast.LENGTH_SHORT).show();}
-    public void View(String a, String b){textLetter.setText (a);textLines.setText(b);}
-
-    void ViewTheme(){
-        cursorTheme = modeDB.query("themeModeData", new String[] {"flag"},null,null,null,null,null);
-        if (cursorTheme.moveToFirst()){
-            if(cursorTheme.getString(0).equals("MODE_NIGHT_NO")){
-                setDefaultNightMode(MODE_NIGHT_NO);
-            }else if(cursorTheme.getString(0).equals("MODE_NIGHT_YES")){
-                setDefaultNightMode(MODE_NIGHT_YES);
-            }
-            else{setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM);}
-        }
-        cursorTheme.close();
-    }
-    void bindDB(){
-        //dbのファイルが無いない場合は作成する
-        if(mode == null){ mode = new ConfigData(getApplicationContext());}
-        if(history == null){ history = new InputHistory(getApplicationContext());}
-        //dbのインスタンスが無い場合は作成する | 履歴を出力するだけなので、読み込みモードで呼び出す
-        if(historyDB == null){ historyDB = history.getReadableDatabase();}
-        //設定をを読み書きするだけなので、読み書きモードで呼び出す
-        if(modeDB == null){ modeDB = mode.getWritableDatabase();}
-    }
-    @Override public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.option, menu);
-        return true;
-    }
+    @Override public boolean onCreateOptionsMenu(Menu menu) {getMenuInflater().inflate(R.menu.main_option_menu, menu);return true;}
     public boolean onOptionsItemSelected(MenuItem item) {// オプションメニューのアイテムが選択されたときに呼び出されるメソッド
         switch (item.getItemId()) {
             case R.id.item1:
-                Intent I;
-                I = new Intent(MainActivity.this, ListActivity.class);
-                startActivity(I);
+                startActivity(new Intent(MainActivity.this, ListActivity.class));
                 return true;
             case R.id.item2:
                 new ThemeDialogFragment().show(getSupportFragmentManager(), "my_dialog");
@@ -232,36 +254,79 @@ public class MainActivity extends AppCompatActivity {//継承
     }
     public static class ThemeDialogFragment extends DialogFragment {
         @NonNull @Override public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-            cursor1 = modeDB.query("themeModeData", new String[] {"flag"},null,null,null,null,null);
+            cursorTheme1 = modeDB.query("themeModeData", new String[] {"flag"},null,null,null,null,null);
             int itemChoice = 2;
-            if(cursor1.moveToFirst()){
-                if(cursor1.getString(0).equals("MODE_NIGHT_NO")){
+            if(cursorTheme1.moveToFirst()){
+                if(cursorTheme1.getString(0).equals("MODE_NIGHT_NO")){
                     itemChoice = 0;
-                } else if (cursor1.getString(0).equals("MODE_NIGHT_YES")) {
+                } else if (cursorTheme1.getString(0).equals("MODE_NIGHT_YES")) {
                     itemChoice = 1;
                 }
             }
-            cursor1.close();
+            cursorTheme1.close();
             return  new AlertDialog.Builder(requireActivity())
                     .setTitle(R.string.dialog_theme_title)
-                    .setSingleChoiceItems(new String[]{"ホワイト","ダーク","自動"}, itemChoice, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            switch (which){
-                                case 0:
-                                    bt.changeTheme(modeDB,cursor1,"MODE_NIGHT_NO");
-                                    setDefaultNightMode(MODE_NIGHT_NO);
-                                    break;
-                                case 1:
-                                    bt.changeTheme(modeDB,cursor1,"MODE_NIGHT_YES");
-                                    setDefaultNightMode(MODE_NIGHT_YES);
-                                    break;
-                                case 2:
-                                    bt.changeTheme(modeDB,cursor1,"MODE_NIGHT_FOLLOW_SYSTEM");
-                                    setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM);
-                                    break;
-                            }
+                    .setSingleChoiceItems(new String[]{"ホワイト","ダーク","自動"}, itemChoice, (dialog, which) -> {
+                        switch (which){
+                            case 0:
+                                myLibrary.changeData(modeDB,cursorTheme1,"themeModeData","flag","MODE_NIGHT_NO");
+                                setDefaultNightMode(MODE_NIGHT_NO);
+                                break;
+                            case 1:
+                                myLibrary.changeData(modeDB,cursorTheme1,"themeModeData","flag","MODE_NIGHT_YES");
+                                setDefaultNightMode(MODE_NIGHT_YES);
+                                break;
+                            case 2:
+                                myLibrary.changeData(modeDB,cursorTheme1,"themeModeData","flag","MODE_NIGHT_FOLLOW_SYSTEM");
+                                setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM);
+                                break;
                         }
                     }).create();
+        }
+    }
+
+    public void addText(){
+        myLibrary.dataInsert(historyDB,"textData",new String[] {"_id","date","description","line","break","empty"},new String[]{myLibrary.format2(UUID.randomUUID()), MyLibrary.getNowDate(),
+                myLibrary.format2 (textBOX.getText ( )), myLibrary.line(textBOX), myLibrary.BreakCnt(myLibrary.Count(textBOX.getText ()), myLibrary.line (textBOX)), myLibrary.EmptyCnt(myLibrary.format2(textBOX.getText()))});}
+    public void View(String ltr, String lns){textLetter.setText (ltr);textLines.setText(lns);}
+
+    void bindDB(){
+        //dbのファイルが無いない場合は作成する
+        if(mode == null){ mode = new ConfigData(getApplicationContext());}
+        if(history == null){ history = new InputHistory(getApplicationContext());}
+        //dbのインスタンスが無い場合は作成する | 履歴を出力するだけなので、読み込みモードで呼び出す
+        if(historyDB == null){ historyDB = history.getWritableDatabase();}
+        //設定をを読み書きするので、読み書きモードで呼び出す
+        if(modeDB == null){ modeDB = mode.getWritableDatabase();}
+    }
+    void bindSettingData(){
+        cursorTheme = modeDB.query("themeModeData", new String[] {"flag"},null,null,null,null,null);
+        if (cursorTheme.moveToFirst()){
+            if(cursorTheme.getString(0).equals("MODE_NIGHT_NO")){
+                setDefaultNightMode(MODE_NIGHT_NO);
+            }else if(cursorTheme.getString(0).equals("MODE_NIGHT_YES")){
+                setDefaultNightMode(MODE_NIGHT_YES);
+            }
+            else{setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM);}
+        }
+        cursorTheme.close();
+
+        Watcher.setChecked (myLibrary.isMode (modeDB, "watcherModeData", new String[]{"situation"}, "TRUE"));
+        //dbの参照でリアルタイムスイッチのオンオフを判断 データがある場合のみ入力監視を開始する
+        if(Watcher.isChecked()){
+            textBOX.addTextChangedListener (TW);
+            myLibrary.dataInsert(modeDB,"watcherModeData",
+                    new String[]{"situation"},new String[]{"TRUE"});
+        }
+        else{
+            textBOX.removeTextChangedListener (TW);
+            myLibrary.dataAllDelete(modeDB,"watcherModeData");
+        }
+        //compound btnイベント呼び出し//
+        if (myLibrary.isMode(modeDB,"maxLengthData",new String[]{"size"},"TRUE")){
+            maxCursor = modeDB.query("maxLengthData",new String[]{"size"},null,null,null,null,null);
+            maxText[0] = new InputFilter.LengthFilter(Integer.parseInt(maxCursor.getString(0)));
+            textBOX.setFilters(maxText);
         }
     }
 }

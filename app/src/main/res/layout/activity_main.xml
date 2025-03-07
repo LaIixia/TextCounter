@@ -21,33 +21,37 @@
         app:layout_constraintHorizontal_bias="0.792"
         app:layout_constraintStart_toStartOf="parent" />
 
+
     <EditText
         android:id="@+id/edit_text"
         android:layout_width="335dp"
         android:layout_height="400dp"
-        android:autofillHints="@string/hint_input"
         android:background="@android:drawable/editbox_background"
-        android:gravity="top"
-        android:hint="@string/hint_input"
+        android:gravity="top|left"
+        android:hint="@string/hint_inputText"
         android:inputType="textMultiLine"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.52"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.495" />
 
     <Button
         android:id="@+id/button_cnt"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="60dp"
+        android:layout_height="45dp"
         android:layout_marginBottom="60dp"
-        android:text="@string/button_cnt"
-        android:textSize="16sp"
         android:textColor="@color/TextColorWhite"
+        android:textSize="16sp"
+        app:icon="@drawable/button_cnt_icon"
+        app:iconGravity="top"
+        app:iconSize="25dp"
+        app:iconTint="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.12"
+        app:layout_constraintHorizontal_bias="0.207"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
@@ -69,7 +73,7 @@
         android:layout_height="45dp"
         android:layout_marginBottom="5dp"
         android:textColor="@color/TextColorWhite"
-        app:icon="@drawable/icon"
+        app:icon="@drawable/button_detail_icon"
         app:iconGravity="top"
         app:iconSize="25dp"
         app:iconTint="#FFFFFF"
@@ -79,16 +83,17 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@+id/button_del"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:id="@+id/button_clr"
+        android:layout_width="60dp"
+        android:layout_height="45dp"
         android:layout_marginBottom="60dp"
-        android:text="@string/button_res"
-        android:textColor="@color/TextColorWhite"
-        android:textSize="16sp"
+        app:icon="@drawable/button_clr_icon"
+        app:iconGravity="top"
+        app:iconSize="25dp"
+        app:iconTint="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.879"
+        app:layout_constraintHorizontal_bias="0.792"
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
@@ -149,11 +154,11 @@
         android:id="@+id/watcherSwitch"
         android:layout_width="115dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="70dp"
-        android:gravity="center"
+        android:layout_marginBottom="60dp"
+        android:checked="true"
         android:text="@string/button_chk"
         android:textColor="@color/TextColorGray"
-        android:textSize="11sp"
+        android:textSize="11.25sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

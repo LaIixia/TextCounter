@@ -94,9 +94,11 @@ public class MainActivity extends AppCompatActivity {//継承
         //dbの状態に応じて設定をアプリ起動時に反映
         bindSettingData( );
 
-        /*ディスプレイの密度を取得し、密度が2.75以下の場合はサイズを変える*/
-        if(getResources().getDisplayMetrics().density> 2.75){
-            myLibrary.setLayoutDp(this, textBOX, 335f, 300f);//テキストボックス
+
+        /*ディスプレイの密度を取得し、サイズを変える*/
+        //System.out.println(getResources().getDisplayMetrics().scaledDensity);
+        if(getResources().getDisplayMetrics().scaledDensity> 450){
+            myLibrary.setLayoutDp(this, textBOX, 320f, 300f);//テキストボックス
             myLibrary.setLayoutDp(this, Watcher, 95f, 50f);//スイッチ
         }
     }
@@ -152,9 +154,9 @@ public class MainActivity extends AppCompatActivity {//継承
             else{
                 //クリップボードにセット
                 clipboard.setPrimaryClip(ClipData.newPlainText(null, textBOX.getText ()));
-               if(Build.VERSION.SDK_INT > 33) {//os 13以下の時だけメッセージを出す
-                   myLibrary.msgToast(getApplicationContext(),R.string.burble_message_copied,Toast.LENGTH_SHORT);
-               }
+                if(Build.VERSION.SDK_INT > 33) {//os 13以下の時だけメッセージを出す
+                    myLibrary.msgToast(getApplicationContext(),R.string.burble_message_copied,Toast.LENGTH_SHORT);
+                }
             }
         }
     }
@@ -179,9 +181,9 @@ public class MainActivity extends AppCompatActivity {//継承
             LayoutInflater inflater = requireActivity().getLayoutInflater();
             View myDia = inflater.inflate(R.layout.dialog_detail, null);
             CheckBox half_engCheckbox = myDia.findViewById(R.id.half_alphabet_Checkbox),
-                     half_numCheckbox = myDia.findViewById(R.id.half_number_CheckBox),
-                     full_engCheckbox = myDia.findViewById(R.id.full_alphabet_Checkbox),
-                     full_numCheckbox = myDia.findViewById(R.id.full_number_Checkbox);
+                    half_numCheckbox = myDia.findViewById(R.id.half_number_CheckBox),
+                    full_engCheckbox = myDia.findViewById(R.id.full_alphabet_Checkbox),
+                    full_numCheckbox = myDia.findViewById(R.id.full_number_Checkbox);
             EditText setMaxNum = myDia.findViewById(R.id.editSetLength);
             TextView letter = myDia.findViewById(R.id.text_letters2),
                     line   = myDia.findViewById(R.id.text_lines2),
@@ -323,8 +325,8 @@ public class MainActivity extends AppCompatActivity {//継承
             myLibrary.dataAllDelete(modeDB,"watcherModeData");
         }
         //compound btnイベント呼び出し//
-        if (myLibrary.isMode(modeDB,"maxLengthData",new String[]{"size"},"TRUE")){
-            maxCursor = modeDB.query("maxLengthData",new String[]{"size"},null,null,null,null,null);
+        maxCursor = modeDB.query("maxLengthData",new String[]{"size"},null,null,null,null,null);
+        if (maxCursor.moveToFirst()){
             maxText[0] = new InputFilter.LengthFilter(Integer.parseInt(maxCursor.getString(0)));
             textBOX.setFilters(maxText);
         }

@@ -5,12 +5,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.widget.Toast;
 
 import com.myapp.textcounter.R;
-
 import java.util.regex.Pattern;
 
 public class PatternModel {
     MyLibrary myLibrary = new MyLibrary();
-    static SQLiteDatabase modeDB;
 
     public PatternModel(Context c,SQLiteDatabase db,Object tryText){//チェックボックスがタッチされているパターンに応じてメッセージを振り分け
         //1項目以上押された時 英字全角+数字全角+数字半角@@

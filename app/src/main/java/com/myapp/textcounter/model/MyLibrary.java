@@ -68,11 +68,14 @@ public class MyLibrary extends AppCompatActivity {
     //引数のカーソルからテーブルの列にデータがるかつ、そこに含まれている場合はCompoundButtonをtrueにする
     public boolean isMode(SQLiteDatabase db, String tableName, String[] value, String matchFlags){
         Cursor modeCursor = db.query(tableName, value,null,null,null,null,null);
-        if (modeCursor.moveToFirst()) {
-            if (modeCursor.getString(0).equals(matchFlags))modeCursor.close(); return true;
+        if(modeCursor.moveToFirst() && modeCursor.getString(0).equals(matchFlags)){
+            modeCursor.close();
+            return  true;
+        }else {
+            modeCursor.close();
+            return false;
         }
-        modeCursor.close();
-        return false;
+
     }
     //CompoundButton系統でスイッチが操作され、trueならdbにデータを格納し、falseなら消すメソッド
     public void dataMatchListener(boolean isChecked, SQLiteDatabase db, String tableName, String[] values , String[] flag){
